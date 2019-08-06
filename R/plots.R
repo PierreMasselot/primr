@@ -55,7 +55,8 @@ plot_box <- function(object, select = 1:2, npeel = NULL, support = NULL,
 
 
 plot_trajectory <- function(object, xtype = c("support", "nobs"), 
-  ytype = c("yfun", "diff", "rel.diff"), ...)
+  ytype = c("yfun", "diff", "rel.diff"), npeel = NULL, support = NULL, 
+  yfun = NULL, abline.pars = list(), ...)
 {
   dots <- list(...)
   if (!inherits(object, "prim")){
@@ -64,15 +65,23 @@ plot_trajectory <- function(object, xtype = c("support", "nobs"),
   n <- nrow(object$x)
   nbox <- object$npeel + 1
   dots.def <- list()
+  if (length(c(npeel, support, yfun)) > 0){
+    boxes <- extract.box(object, npeel = npeel, support = support, yfun = yfun)
+  } else {
+    boxes <- NULL
+  }
+  ab.def <- list(v = boxes$support, lty = 2)
   xtype <- match.arg(xtype) 
   switch(xtype, 
     support = {
       x <- object$support
       dots.def$xlab <- "Support"
+      ab.def$v <- boxes$support
     },
     nobs = {
       x <- round(object$support * n)
       dots.def$xlab <- "Number of observations"
+      ab.def$v <- round(boxes$support * n)
     }
   )
   ytype <- match.arg(ytype) 
@@ -95,4 +104,9 @@ plot_trajectory <- function(object, xtype = c("support", "nobs"),
   plot.args <- c(list(x = x, y = y), dots, 
     dots.def[!names(dots.def) %in% names(dots)])
   do.call(plot, plot.args)
+  if (length(c(npeel, support, yfun)) > 0){
+    abline.pars <- c(abline.pars, 
+      ab.def[!names(ab.def) %in% names(abline.pars)])
+    do.call(abline, abline.pars)
+  }  
 }
