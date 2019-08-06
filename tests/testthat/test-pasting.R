@@ -2,9 +2,10 @@ test_that("pasting numerical variables works", {
   x <- data.frame(V1 = runif(100))
   y <- 5*x[[1]] + rnorm(100)
   small.box <- list(c(.1, .2))
+  nbox <- sum(in.box(x, small.box))
   past_res <- pasting(y, x, alpha = .2, small.box = small.box)
   # Check that 2 obs have been added
-  expect_equal(length(past_res$y), sum(x >= .1 & x <= .2) + 2) 
+  expect_equal(length(past_res$y), ceiling(nbox * 1.2)) 
   
   # Check that it had been added on the right
   past_res <- pasting(y, x, alpha = .2, small.box = small.box, 
@@ -17,6 +18,15 @@ test_that("pasting numerical variables works", {
     peeling.side = -1)
   expect_equal(past_res$limits[[1]][2], max(x[x <= .2]))
   expect_lt(past_res$limits[[1]][1], .1)
+  
+  # Check that it works with several variables
+  x <- data.frame(V1 = runif(1000), V2 = runif(1000))
+  y <- 5*x[[1]] + rnorm(1000)
+  small.box <- list(c(.1, .2), c(.1, .2))
+  nbox <- sum(in.box(x, small.box))
+  past_res <- pasting(y, x, alpha = .2, small.box = small.box)
+  # Check that 2 obs have been added
+  expect_equal(length(past_res$y), ceiling(nbox * 1.2)) 
 })
 
 test_that("pasting categorical variables works", {
