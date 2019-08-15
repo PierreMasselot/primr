@@ -8,7 +8,7 @@
 #'    \code{\link[graphics]{rect}}. All arguments can be passed as vectors
 #'    to have different boxes. 
 plot_box <- function(object, select = 1:2, npeel = NULL, support = NULL, 
-  yfun = NULL, ypalette = NULL, box.args = list(), ...)
+  yfun = NULL, npaste = NULL, ypalette = NULL, box.args = list(), ...)
 {
   dots <- list(...)
   if (!inherits(object, "prim")){
@@ -21,7 +21,8 @@ plot_box <- function(object, select = 1:2, npeel = NULL, support = NULL,
   xplot <- object$x[,select]
   labs <- colnames(xplot)
   # Extract boxes
-  boxes <- extract.box(object, npeel = npeel, support = support, yfun = yfun)
+  boxes <- extract.box(object, npeel = npeel, support = support, 
+    yfun = yfun, npaste = npaste)
   nboxes <- length(boxes$yfun)
   boxlimits <- lapply(boxes$limits, "[", select)
   # If a single dimension is to be plotted
@@ -56,7 +57,7 @@ plot_box <- function(object, select = 1:2, npeel = NULL, support = NULL,
 
 plot_trajectory <- function(object, xtype = c("support", "nobs"), 
   ytype = c("yfun", "diff", "rel.diff"), npeel = NULL, support = NULL, 
-  yfun = NULL, abline.pars = list(), ...)
+  yfun = NULL, npaste = NULL, abline.pars = list(), ...)
 {
   dots <- list(...)
   if (!inherits(object, "prim")){
@@ -65,8 +66,9 @@ plot_trajectory <- function(object, xtype = c("support", "nobs"),
   n <- nrow(object$x)
   nbox <- object$npeel + 1
   dots.def <- list()
-  if (length(c(npeel, support, yfun)) > 0){
-    boxes <- extract.box(object, npeel = npeel, support = support, yfun = yfun)
+  if (length(c(npeel, support, yfun, npaste)) > 0){
+    boxes <- extract.box(object, npeel = npeel, support = support, 
+      yfun = yfun, npaste = npaste)
   } else {
     boxes <- NULL
   }

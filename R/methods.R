@@ -6,33 +6,32 @@
 
 #' Priority to npeel, then support, then yfun
 #' If there is no matching box, the last one is returned
-extract.box <- function(object, npeel = NULL, support = NULL, yfun = NULL)
+extract.box <- function(object, npeel = NULL, support = NULL, yfun = NULL,
+  npaste = NULL)
 # Extract first box with smaller support than 'support' argument
 # boxes: result from peeling.sequence
-{
-    if (is.null(npeel)){
-      if (is.null(support)){
-        if (is.null(yfun)){
-          warning("'npeel', 'support' and 'yfun' are all NULL. Last box is returned")
-          box.ind <- object$npeel + 1
-        } else{
-          box.ind <- sapply(yfun, function(x){
-            Position(function(y) y >= x, object$yfun, 
-              nomatch = object$npeel + 1)
-          })          
-        }
-      } else {
-        box.ind <- sapply(support, function(x){
-          Position(function(y) y <= x, object$support, 
-            nomatch = object$npeel + 1)
-        })  
-      }
-    } else {
-      box.ind <- pmin(npeel + 1, object$npeel + 1)
-    }
-    final.box <- list(limits = object$limits[box.ind], npeel = box.ind - 1, 
-      yfun = object$yfun[box.ind], support = object$support[box.ind])
-    return(final.box)
+{  
+  inds.npeel <- pmin(npeel + 1, object$npeel + 1)
+  inds.support <- sapply(support, function(x){
+    Position(function(y) y <= x, object$support, 
+      nomatch = object$npeel + 1)
+  })  
+  inds.yfun <- sapply(yfun, function(x){
+    Position(function(y) y >= x, object$yfun, 
+      nomatch = object$npeel + 1)
+  })  
+  inds.npaste <- pmin(npaste, object$npaste) + object$npeel + 1
+  box.ind <- c(inds.npeel, inds.support, inds.yfun, inds.npaste)
+  box.ind <- unlist(box.ind)
+  if (length(box.ind) == 0){
+    warning("No box matches the arguments. Last box is returned")
+    box.ind <- with(object, npeel + npaste + 1)
+  }
+  box.ind <- sort(unique(box.ind))  
+  final.box <- list(limits = object$limits[box.ind], 
+    npeel = pmin(box.ind - 1, object$npeel), 
+    yfun = object$yfun[box.ind], support = object$support[box.ind])
+  return(final.box)
 }
 
 in.box <- function(x, limits, y = NULL, numeric.vars = NULL){

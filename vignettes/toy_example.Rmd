@@ -1,8 +1,10 @@
 ---
-title: "toy_example"
+title: "A brief introduction to primr"
+author: "Pierre Masselot"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{toy_example}
+  %\VignetteIndexEntry{A brief introduction to primr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,5 +17,92 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(primr)
+#library(primr)
+path <- paste0("C:/Users/masselpl/Documents/Recherche/2017-2019 - Post-doc/",
+  "Programmes/R/primr/R")
+invisible(lapply(list.files(path), function(fil){
+  source(sprintf("%s/%s", path, fil))}))
+
 ```
+
+# Introduction
+
+# A basic toy example
+
+Consider the following example, where a response is linearly linked to two
+explanatory variables. We create an artifical bump that occurs when
+$x_1 > 0.8$ and $x_2 > 0.5$:
+
+```{r, fig.dim = c(7, 7)}
+set.seed(12345)
+x <- matrix(runif(1000), ncol = 2)
+y <-  2 * x[,1] + 5 * x[,2] + 10 * (x[,1] >= .8 & x[,2] >= .5) + rnorm(100)
+
+plot(x, col = hcl.colors(10)[cut(y, 10)], pch = 16, xlab = "V1", ylab = "V2")
+```
+
+## Peeling
+
+The initial peeling can be carried out with the function `peeling`. This 
+function allows to provide the peeling fraction `alpha`, the stopping
+criterion `beta.stop`, as well as the objective function being maximized
+and other parameters. See `?peeling`.
+
+```{r}
+# Peels the dataset to maximize the box's mean
+peel_res <- peeling(y, x)
+``` 
+
+## Choosing the best box
+
+The next step is to examine the peeling trajectory in order to choose the
+best box. Several possibilities are available for the peeling trajectory. For
+instance, the plot below shows both the evolution of the mean and the
+relative difference of mean between each step.
+
+```{r, fig.dim = c(7, 10)}
+par(mfrow = c(2,1), mar = c(4, 4, 3, 2) + .1)
+plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+  support = 0.1, abline.pars = list(lwd = 2, col = "indianred"), 
+  xlab = "")
+plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue",
+  support = 0.1, abline.pars = list(lwd = 2, col = "indianred"), 
+  ytype = "rel.diff")
+``` 
+
+As expected, the peeling trajectory shows that the box's mean reaches a plateau 
+when the support is lower than 0.1 (identified by the vertical line). 
+This is also shown by a large relative difference in the bottom panel.
+
+If we plot the corresponding box on the data, we see that this box fits well
+the data.
+
+```{r, fig.dim = c(7, 7)}
+plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), support = 0.1, 
+  box.args = list(lwd = 2))
+``` 
+
+## Pasting
+
+The final step is to refine the box's edges by pasting. Let's say we choose the
+final box with support equal to 0.01. By pasting, it is possible to slightly
+increase the size of the final box, as shown in the figure below.
+
+```{r, fig.dim = c(7, 7)}
+paste_res <- pasting(peel_res, support = 0.01)
+
+plot_box(paste_res, pch = 16, ypalette = hcl.colors(10), npaste = c(0, 2), 
+  box.args = list(lwd = 2, border = c("grey", "black"), lty = 1:2))
+``` 
+
+# Some special topics
+
+## Select the box after peeling
+
+## Categorical variables
+
+## Directed peeling
+
+# Automating the process
+
+Useful for extracting several boxes or for simulations for instance

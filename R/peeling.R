@@ -48,17 +48,24 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
         if (jyfun > yfun){
            finbox <- inbox
            yfun <- jyfun
-           new.limits <- limits
-           new.limits[[j]] <- unname(newlims)
         }
-      }
+      }      
     }
+    # Final readjustment of limits
+    final.x <- x[finbox,,drop=F] 
+    new.limits <- Map(function(xj, numj){
+      if (numj){
+        out <- range(xj)
+      } else {
+        out <- unique(xj)
+      }
+    }, final.x, numeric.vars)
     return(list(limits = new.limits, yfun = yfun,
-       y = y[finbox], x = x[finbox,,drop=F]))
+       y = y[finbox], x = final.x))
 }
 
 #' @param x Data.frame -> higher level functions will make sure it is.
-peeling.sequence <- function(y, x, alpha = 0.05, beta.stop = 0.01, 
+peeling <- function(y, x, alpha = 0.05, beta.stop = 0.01, 
   obj.fun = mean, peeling.side = 0)
 # y: response
 # x: covariates
@@ -101,8 +108,9 @@ peeling.sequence <- function(y, x, alpha = 0.05, beta.stop = 0.01,
     yfun <- yfun[-irem]
     limits <- limits[-irem]
     out <- list(support = support, yfun = yfun, limits = limits, 
-      npeel = count - 1, x = x, y = y, 
-      obj.fun = deparse(substitute(obj.fun)))
+      npeel = count - 1, x = x, y = y, alpha = alpha, 
+      peeling.side = peeling.side, numeric.vars = numeric.vars,
+      npaste = 0, obj.fun = deparse(substitute(obj.fun)))
     class(out) <- "prim"
     return(out)
 }
