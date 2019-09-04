@@ -25,7 +25,7 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
 {
     p <- ncol(x)
     n <- nrow(x)
-    yfun <- min(y)
+    yfun <- -Inf
     nnumeric <- sum(numeric.vars)
     numinds <- which(numeric.vars)
     numeric_sublims <- c(alpha, 1 - alpha)

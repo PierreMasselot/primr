@@ -44,11 +44,16 @@ test_that("pasting categorical variables works", {
 test_that("sequence pasting works", {
   x <- runif(100)
   y <- -10 * abs(x - .5)
-  small.box <- list(c(.1, .2))
+  peeled <- peeling(y, x, peeling.side = 1)
   
-  past_res <- pasting(y, x, small.box)
-  expect_equal(length(past_res$limits), past_res$npaste + 1)
-  expect_equal(length(past_res$yfun), past_res$npaste + 1)
-  expect_equal(length(past_res$support), past_res$npaste + 1)
-  expect_gte(past_res$limits[[past_res$npaste]][[1]][1], .1)
+  past_res <- pasting(peeled, npeel = peeled$npeel, 
+    peeling.side = 0)
+  expect_equal(length(past_res$limits), 
+    past_res$npaste + peeled$npeel + 1)
+  expect_equal(length(past_res$yfun), 
+    past_res$npaste + peeled$npeel + 1)
+  expect_equal(length(past_res$support), 
+    past_res$npaste + peeled$npeel + 1)
+  expect_gte(past_res$support[past_res$npaste + peeled$npeel + 1], 
+    peeled$support[peeled$npeel+ 1])
 })

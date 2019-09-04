@@ -18,7 +18,7 @@ test_that("extract.box works", {
   x <- matrix(runif(200), ncol = 2)
   y <- 100*x[,1] + rnorm(100)
   extr <- 10
-  peel_res <- peeling.sequence(y, as.data.frame(x))
+  peel_res <- peeling(y, as.data.frame(x))
   
   # Extraction using npeel
   expect_equal(
@@ -78,7 +78,7 @@ test_that("extract.box works", {
 test_that("predict.prim works", {
   x <- matrix(runif(200), ncol = 2)
   y <- 100*x[,1] + rnorm(100)
-  peel_res <- peeling.sequence(y, as.data.frame(x))
+  peel_res <- peeling(y, as.data.frame(x))
   
   x2 <- data.frame(1:10/10, runif(10))
   pred_res <- predict(peel_res, x = x2)

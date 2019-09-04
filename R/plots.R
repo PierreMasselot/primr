@@ -17,8 +17,8 @@ plot_box <- function(object, select = 1:2, npeel = NULL, support = NULL,
   n <- nrow(object$x)
   p <- ncol(object$x)
   # Select the x to plot
-  select <- select[1:pmin(length(select), 2)]
-  xplot <- object$x[,select]
+  select <- select[1:pmin(length(select), 2, p)]
+  xplot <- object$x[,select, drop = FALSE]
   labs <- colnames(xplot)
   # Extract boxes
   boxes <- extract.box(object, npeel = npeel, support = support, 

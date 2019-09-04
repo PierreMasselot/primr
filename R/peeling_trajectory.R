@@ -6,6 +6,7 @@ jump.prim <- function(object, rel.support = T)
   if (rel.support) traj.change <- traj.change / -diff(object$support)  
   opt.sup <- which.max(traj.change)
   optimal.box <- extract.box(object, npeel = opt.sup)
+  optimal.box$limits <- optimal.box$limits[[1]]
   return(list(trajectory.difference = traj.change, npeel.opt = opt.sup,
     final.box = optimal.box))
 }

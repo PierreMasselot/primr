@@ -1,8 +1,9 @@
 library(usethis)
 library(devtools)
 
-# Initial creation
 pkg_path <- "C:/Users/masselpl/Documents/Recherche/2017-2019 - Post-doc/Programmes/R/primr"
+
+# Initial creation
 create_package(pkg_path)
 
 setwd(pkg_path)
@@ -18,8 +19,10 @@ use_test("useful_functions")
 use_test("best_box")
 # Test the functions
 test()  # All
-setwd(sprintf("%s/tests/testthat",pkg_path))
-test_file(path = "test-pasting.R")  # A single file
+
+unit_test <- "pasting"
+test_file(path = sprintf("%s/tests/testthat/test-%s.R",
+  pkg_path, unit_test))  # A single file
 
 # Creation of the vignette
 use_vignette("Toy_example", title = "A basic primr example")
