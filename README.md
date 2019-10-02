@@ -3,7 +3,7 @@
  
 ## Description
 
-The \code{primr} package provides function for performing the patient rule-induction method (PRIM) proposed by Friedman and Fisher (1999). PRIM is designed for bump hunting, i.e. to find a subdomain of \code{x} inputs in which an objective function of a response \code{y} is high.
+The `primr` package provides function for performing the patient rule-induction method (PRIM) proposed by Friedman and Fisher (1999). PRIM is designed for bump hunting, i.e. to find a subdomain of `x` inputs in which an objective function of a response `y` is high.
 
 ## Installation
 
@@ -14,7 +14,8 @@ The \code{primr} package provides function for performing the patient rule-induc
   build_opts = c("--no-resave-data", "--no-manual"))
 ```
 2. The package can then be loaded as usual: `library(primr)`.
-3. See the vignette for simple utilization examples: `vignette("toy_example")`.
+3. You can see the vignette for simple examples: `vignette("toy_example")`.
+4. You can see the list of functions in the file https://github.com/PierreMasselot/primr/blob/master/primr_0.0.0.9000.pdf or access help from R with `?peeling`.
 
 ## Functions
 

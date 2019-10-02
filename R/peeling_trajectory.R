@@ -13,7 +13,7 @@
 #'    should be relative to the support for finding the jump (default to TRUE).
 #'
 #' @details Computes the (relative) trajectory differences of \code{object}:
-#'    \deqn{\frac{yfun[k] - yfun[k - 1]}{support[k - 1] - support[k]}}
+#'    \deqn{\frac{yfun[k] - yfun[k - 1]}{support[k - 1] - support[k]}}{(yfun[k] - yfun[k - 1])/(support[k - 1] - support[k])}
 #'    and returns its maximum value. The rationale is that the biggest jump
 #'    in peeling trajectory gives a good cut-off point for the peeling 
 #'    algorithm. 
