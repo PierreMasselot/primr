@@ -10,8 +10,7 @@ The `primr` package provides function for performing the patient rule-induction 
 1. In R, install the package directly from github using the command (the package `devtools` is required):
 ```r
 > library(devtools)
-> install_github("PierreMasselot/primr", build = TRUE, 
-  build_opts = c("--no-resave-data", "--no-manual"))
+> install_github("PierreMasselot/primr", build_vignettes = TRUE)
 ```
 2. The package can then be loaded as usual: `library(primr)`.
 3. You can see the vignette for simple examples: `vignette("toy_example")`.
