@@ -27,18 +27,6 @@ test_that("peeling numeric variables works", {
   expect_equal(peel_res$limits, xlims)
 })
 
-test_that("peeling categorical variables works", {
-  library(dlnm)
-  nonadat <- na.omit(chicagoNMMAPS)
-  y <- nonadat$death
-  x <- nonadat[,"dow", drop = F]
-  
-  peel_res <- peel(y, x, limits = list(unique(x[,1])), numeric.vars = F)
-  expect_equal(length(peel_res$limits[[1]]), 6)
-  expect_setequal(peel_res$limits[[1]], 
-    c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
-})
-
 test_that("peeling sequence works", {
   x <- matrix(runif(200), ncol = 2)
   y <- 100 * x[,1] + rnorm(100)

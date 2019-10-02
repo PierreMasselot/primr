@@ -35,10 +35,10 @@ $x_1 > 0.8$ and $x_2 > 0.5$:
 
 ```{r, fig.dim = c(7, 7)}
 set.seed(12345)
-x <- matrix(runif(2000), ncol = 2)
-y <-  2 * x[,1] + 5 * x[,2] + 10 * (x[,1] >= .8 & x[,2] >= .5) + rnorm(1000)
+x <- matrix(runif(2000), ncol = 2, dimnames = list(NULL, c("x1", "x2")))
+y <- 2 * x[,1] + 5 * x[,2] + 10 * (x[,1] >= .8 & x[,2] >= .5) + rnorm(1000)
 
-plot(x, col = hcl.colors(10)[cut(y, 10)], pch = 16, xlab = "V1", ylab = "V2")
+plot(x, col = hcl.colors(10)[cut(y, 10)], pch = 16)
 ```
 
 ## Peeling
@@ -101,12 +101,162 @@ plot_box(paste_res, pch = 16, ypalette = hcl.colors(10), npaste = c(0, 2),
 
 # Some special topics
 
+The above example shows the overall framework to perform the PRIM algorithm.
+Here, we cover some additional features of the `primr` package.
+
 ## Select the box after peeling
+
+The most important part of the PRIM algorithm is the choice of the peeling's
+stopping criterion, i.e. which box to keep after the peeling has been
+carried out. The `primr` package offers a few tools to help the user in this
+choice.
+
+The first one is to analyze the peeling trajectory as was done in the toy
+example above. In this example, we chose the highest relative difference of
+the trajectory. This can be automatically extracted by the function
+`jump.prim`. The example below shows that it allows finding the same box as
+before.
+
+```{r, fig.dim = c(7, 7)}
+peel_res <- peeling(y, x, beta.stop = 0.05)
+chosen <- jump.prim(peel_res)
+
+plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+  support = chosen$final.box$support, box.args = list(lwd = 2))
+```
+
+Alternatively, the stopping criterion can be chosen through cross-validation
+with the function `cv.trajectory`. For instance, on the toy example below,
+the cross-validated trajectory also shows the same plateau as before for
+support lower than 0.1 precisely. It also
+reaches its maximum for the box with support 
+equal to 0.032, although there is an important uncertainty. 
+
+```{r, fig.dim = c(7, 7)}
+cv_res <- cv.trajectory(y, x)
+
+plot_trajectory(cv_res, type = "b", pch = 16, col = "cornflowerblue", 
+  support = 0.1, npeel = which.max(cv_res$yfun), 
+  abline.pars = list(lwd = 2, col = "indianred"), 
+  xlab = "", xlim = c(0, 0.2), ylim = c(10, 18))
+```
+
+Once the peeling has been carried out and the appropriate support chosen,
+information about one or several boxes can be retrieved with the function
+`extract.box`. For instance, in the following it shows that the box with 
+support equal to 0.1 results in limits slightly above the true ones
+(0.8 and 0.5).
+
+```{r}
+extract.box(peel_res, support = 0.1)
+```
 
 ## Categorical variables
 
+The `primr` package also supports categorical input variables. For instance,
+in the toy example above, we add a third 'letter' variable with a bump
+when it takes the value 'b'. 
+
+```{r}
+set.seed(54321)
+x <- data.frame(x1 = runif(1000), x2 = runif(1000), 
+  x3 = sample(letters[1:5], 1000, replace = TRUE))
+y <- 2 * x[,1] + 5 * x[,2] + 10 * (x[,1] >= .8 & x[,2] >= .5) + 
+  5 * (x[,3] == 'b') + rnorm(1000)
+```
+
+Below, we indeed find a box that roughly respects the bump limits, with the
+right support of 0.02 ($= 0.2 \times 0.5 \times 0.2$). Note that the 
+peeling trajectory shows that the third variable was the first to be peeled
+with large chunks of data removed during the first four iterations.
+
+```{r, fig.dim = c(7, 7)}
+peel_res <- peeling(y, x)
+
+chosen <- jump.prim(peel_res)
+chosen$final.box
+
+plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+  support = chosen$final.box$support, 
+  abline.pars = list(lwd = 2, col = "indianred"), xlab = "")
+```
+
 ## Directed peeling
 
-# Automating the process
+Another feature of the `primr` package is the possibility to direct the
+peeling in a particular direction.
+Let's say that both input variables now induce bumps at both their extremities.
 
-Useful for extracting several boxes or for simulations for instance
+```{r, fig.dim = c(7, 7)}
+set.seed(12345)
+x <- matrix(runif(2000), ncol = 2, dimnames = list(NULL, c("x1", "x2")))
+y <- 10 * (x[,1] <= .2 & x[,2] <= .2) + 10 * (x[,1] >= .8 & x[,2] >= .8) +
+  rnorm(1000)
+
+plot(x, col = hcl.colors(10)[cut(y, 10)], pch = 16)
+```
+
+We can force the algorithm to peel only the left of the box to work toward 
+the bump on the upper right corner.
+
+```{r, fig.dim = c(7, 7)}
+peel_left <- peeling(y, x, peeling.side = -1)
+chosen <- jump.prim(peel_left)
+
+plot_box(peel_left, pch = 16, ypalette = hcl.colors(10), 
+  support = chosen$final.box$support, box.args = list(lwd = 2),
+  main = "Left peeling")
+```
+
+And conversely, we can direct the peeling to work toward the bump of the 
+bottom left corner. Note that different input variables can be directed in 
+different directions.
+
+```{r, fig.dim = c(7, 7)}
+peel_right <- peeling(y, x, peeling.side = 1)
+chosen <- jump.prim(peel_right)
+
+plot_box(peel_right, pch = 16, ypalette = hcl.colors(10), 
+  support = chosen$final.box$support, box.args = list(lwd = 2),
+  main = "Right peeling")
+```
+
+## Alternative objective functions
+
+Although the mean is the most common objective function to maximize, other
+functions can be of interest. This can be carried out throught the argument
+`obj.fun` in the `peeling` function. For instance, in the following toy 
+example, we work toward the high variance area of the data. 
+
+```{r, fig.dim = c(10, 5), out.width = "100%"}
+set.seed(1111)
+x <- matrix(runif(2000), ncol = 2, dimnames = list(NULL, c("x1", "x2")))
+y <- rnorm(1000, sd = 1 + 10 * (x[,1] >= .8 & x[,2] >= .8))
+
+# Standard deviation peeling
+peel_res <- peeling(y, x, obj.fun = sd)
+
+par(mfrow = c(1,2))
+plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+  support = 0.036, abline.pars = list(lwd = 2, col = "indianred"), xlab = "",
+  xlim = c(0, 0.5))
+plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+  support = 0.036, box.args = list(lwd = 2))
+``` 
+
+The argument `obj.fun` can also be used to minimize the objective function.
+The trick is simply to consider the opposite objective function.
+
+```{r, fig.dim = c(7, 7)}
+set.seed(3333)
+x <- matrix(runif(2000), ncol = 2, dimnames = list(NULL, c("x1", "x2")))
+y <- - 10 * (x[,1] <= .2 & x[,2] <= .2) + 10 * (x[,1] >= .8 & x[,2] >= .8) +
+  rnorm(1000)
+
+peel_res <- peeling(y, x, obj.fun = function(x) -mean(x))
+chosen <- jump.prim(peel_res)
+
+plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+  support = chosen$final.box$support, box.args = list(lwd = 2))
+```
+

@@ -1,18 +1,23 @@
 Package: primr
-Title: What the Package Does (One Line, Title Case)
+Title: Patient rule-induction method
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Pierre",
+           family = "Masselot",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "pierre.masselot@ete.inrs.ca",
+           comment = c(ORCID = "0000-0002-7326-1290"))
+Description: Provides function for performing the patient rule-induction method (PRIM). Allows peeling, pasting and trajectory analysis.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Suggests: 
     testthat (>= 2.1.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    fields
 VignetteBuilder: knitr
+RoxygenNote: 6.1.1
+Imports: 
+    graphics,
+    stats

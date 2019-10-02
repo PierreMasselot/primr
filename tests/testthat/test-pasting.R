@@ -56,4 +56,9 @@ test_that("sequence pasting works", {
     past_res$npaste + peeled$npeel + 1)
   expect_gte(past_res$support[past_res$npaste + peeled$npeel + 1], 
     peeled$support[peeled$npeel+ 1])
+
+    # Check robustness to misspecification of the chosen box
+  expect_warning(
+    past_res <- pasting(peeled, npeel = peeled$npeel, support = 0.5))
+  expect_length(past_res$support, past_res$npeel + past_res$npaste + 1)
 })

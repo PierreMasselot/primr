@@ -74,19 +74,3 @@ test_that("extract.box works", {
     peel_res$yfun[extr]
   )
 })
-
-test_that("predict.prim works", {
-  x <- matrix(runif(200), ncol = 2)
-  y <- 100*x[,1] + rnorm(100)
-  peel_res <- peeling(y, as.data.frame(x))
-  
-  x2 <- data.frame(1:10/10, runif(10))
-  pred_res <- predict(peel_res, x = x2)
-  expect_null(pred_res$yfun)
-  expect_length(pred_res$support, peel_res$npeel + 1)
-  
-  y2 <- 100*x2[,1] + rnorm(10)
-  pred_res2 <- predict(peel_res, x = x2, y = y2)
-  expect_length(pred_res2$yfun, peel_res$npeel + 1)
-  expect_length(pred_res2$support, peel_res$npeel + 1)
-})
