@@ -10,10 +10,11 @@ The \code{primr} package provides function for performing the patient rule-induc
 1. In R, install the package directly from github using the command (the package `devtools` is required):
 ```r
 > library(devtools)
-> install_github("PierreMasselot/primr")
+> install_github("PierreMasselot/primr", build = TRUE, 
+  build_opts = c("--no-resave-data", "--no-manual"))
 ```
 2. The package can then be loaded as usual: `library(primr)`.
-3. See the vignette for simple utilization examples: `vignette("Toy_example.Rmd")`
+3. See the vignette for simple utilization examples: `vignette("toy_example")`.
 
 ## Functions
 

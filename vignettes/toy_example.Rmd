@@ -25,8 +25,6 @@ invisible(lapply(list.files(path), function(fil){
 
 ```
 
-# Introduction
-
 # A basic toy example
 
 Consider the following example, where a response is linearly linked to two
