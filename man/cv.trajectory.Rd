@@ -4,15 +4,14 @@
 \alias{cv.trajectory}
 \title{Cross-validated peeling trajectory}
 \usage{
-cv.trajectory(y, x, beta.stop.grid = NULL, folds = NULL, nfolds = 10,
-  ...)
+cv.trajectory(y, x, grid = NULL, folds = NULL, nfolds = 10, ...)
 }
 \arguments{
 \item{y}{Numeric vector of response values.}
 
 \item{x}{Numeric or categorical data.frame of input values.}
 
-\item{beta.stop.grid}{Vector of stopping supports
+\item{grid}{Vector of stopping supports
 for peeling trajectory prediction.
 If NULL (the default), an initial peeling is carried out on the 
 whole data and its \code{support} element is used.}
@@ -32,7 +31,7 @@ is NULL.}
 A \code{cv.prim} object that can be used in methods for \code{prim}
    objects (e.g. \code{\link{plot_trajectory}}). Contains the elements:
    \item{support}{The support grid provided in the argument 
-     \code{beta.stop.grid} or generated if the latter is \code{NULL}.}
+     \code{grid} or generated if the latter is \code{NULL}.}
    \item{yfun}{The cross-validated objective function values at each
      \code{support} value.}
    \item{se.yfun}{Cross-validation standard errors associated with 
@@ -53,7 +52,7 @@ The \code{cv.trajectory} function splits the provided data into
    \code{nfolds - 1} folds and the objective function is computed on the
    remaining fold. This process is repeated excluding each fold successively
    and the resulting trajectories are averaged at each value in 
-   \code{beta.stop.grid}.
+   \code{grid}.
 
    Folds can be given either directly through the argument \code{folds} or 
    randomly generated using the argument \code{nfolds}.

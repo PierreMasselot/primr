@@ -74,3 +74,41 @@ test_that("extract.box works", {
     peel_res$yfun[extr]
   )
 })
+
+test_that("construct_objfun works", {
+  y <- 1:10
+  ffun <- mean
+  objfun <- construct_objfun(ffun)
+  expect_equal(objfun(y, inbox = rep(T, 10)), 5.5)
+  expect_equal(objfun(y, inbox = c(rep(T, 5), rep(F, 5))), 3)
+  expect_equal(objfun(y, inbox = c(rep(T, 1), rep(F, 9))), 1)
+  expect_equal(objfun(y, inbox = c(rep(F, 9), rep(T, 1))), 10)
+  expect_equal(objfun(y, x = 11:20, inbox = rep(T, 10)), 5.5)
+  
+  ffun <- var
+  objfun <- construct_objfun(ffun)
+  expect_equal(objfun(y, inbox = rep(T, 10)), var(1:10))
+  expect_equal(objfun(y, inbox = c(rep(T, 5), rep(F, 5))), var(1:5))
+  
+  # Function with y as the main argument
+  ffun <- function(y) mean(y)
+  objfun <- construct_objfun(ffun)
+  expect_equal(objfun(y, inbox = rep(T, 10)), 5.5)
+  expect_equal(objfun(y, inbox = c(rep(T, 5), rep(F, 5))), 3)
+  
+  # Function with y and x arguments
+  ffun <- function(y, x) mean(y - x)
+  objfun <- construct_objfun(ffun)
+  expect_equal(objfun(y, data.frame(x = y / 2)), 2.75)
+  expect_equal(objfun(y, data.frame(x = y / 2), inbox = rep(c(T, F), each = 5)), 
+    1.5)
+    
+  # Already defined function
+  ffun <- function(y, x, inbox){
+    mean(y[inbox]) / mean(x[inbox,1])
+  }
+  objfun <- construct_objfun(ffun)
+  expect_equal(ffun, objfun)
+  expect_equal(objfun(y, data.frame(y / 2), rep(T, 10)), 2)
+  expect_equal(objfun(y, data.frame(y + 2), rep(c(T,F), each = 5)), 0.6)
+})

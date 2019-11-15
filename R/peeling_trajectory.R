@@ -64,7 +64,7 @@ jump.prim <- function(object, rel.support = TRUE)
 #'
 #' @param y Numeric vector of response values.
 #' @param x Numeric or categorical data.frame of input values.
-#' @param beta.stop.grid Vector of stopping supports
+#' @param grid Vector of stopping supports
 #'    for peeling trajectory prediction.
 #'    If NULL (the default), an initial peeling is carried out on the 
 #'    whole data and its \code{support} element is used.
@@ -82,7 +82,7 @@ jump.prim <- function(object, rel.support = TRUE)
 #'    \code{nfolds - 1} folds and the objective function is computed on the
 #'    remaining fold. This process is repeated excluding each fold successively
 #'    and the resulting trajectories are averaged at each value in 
-#'    \code{beta.stop.grid}.
+#'    \code{grid}.
 #'
 #'    Folds can be given either directly through the argument \code{folds} or 
 #'    randomly generated using the argument \code{nfolds}. 
@@ -90,7 +90,7 @@ jump.prim <- function(object, rel.support = TRUE)
 #' @return A \code{cv.prim} object that can be used in methods for \code{prim}
 #'    objects (e.g. \code{\link{plot_trajectory}}). Contains the elements:
 #'    \item{support}{The support grid provided in the argument 
-#'      \code{beta.stop.grid} or generated if the latter is \code{NULL}.}
+#'      \code{grid} or generated if the latter is \code{NULL}.}
 #'    \item{yfun}{The cross-validated objective function values at each
 #'      \code{support} value.}
 #'    \item{se.yfun}{Cross-validation standard errors associated with 
@@ -126,31 +126,31 @@ jump.prim <- function(object, rel.support = TRUE)
 #'      xlab = "", xlim = c(0, 0.2), ylim = c(10, 18))
 #'
 #' @export
-cv.trajectory <- function(y, x, beta.stop.grid = NULL, 
+cv.trajectory <- function(y, x, grid = NULL, 
   folds = NULL, nfolds = 10, ...)
 {
   x <- as.data.frame(x)
   p <- ncol(x)
   n <- nrow(x)
-  if (is.null(beta.stop.grid)){
+  if (is.null(grid)){
     all_peel <- peeling(y, x, ...)
-    beta.stop.grid <- all_peel$support
+    grid <- all_peel$support
   }
-  nsup <- length(beta.stop.grid)
+  nsup <- length(grid)
   if (is.null(folds)){
     folds <- sample(rep_len(1:nfolds, n))
   } else {
     folds <- rep_len(folds, n)
+    nfolds <- length(unique(folds))
   }
   fun.mat <- matrix(NA, nrow = nsup, ncol = nfolds)
   for (i in 1:nfolds){
       train_ind <- folds != i
       test_ind <- folds == i
-      peeli <- peeling(y[train_ind], x[train_ind,], 
-        beta.stop = min(beta.stop.grid), ...)
+      peeli <- peeling(y[train_ind], x[train_ind,], ...)
       traji <- predict.prim(peeli, newy = y[test_ind], newx = x[test_ind,],
         npeel = 0:peeli$npeel)        
-      sup.inds <- sapply(beta.stop.grid, function(b){ 
+      sup.inds <- sapply(grid, function(b){ 
         max(which(peeli$support >= b))
       })
       fun.mat[,i] <- traji$yfun[sup.inds]
@@ -158,7 +158,7 @@ cv.trajectory <- function(y, x, beta.stop.grid = NULL,
   final.traj <- apply(fun.mat, 1, mean, na.rm=T)
   n.traj <- apply(fun.mat, 1, function(x) sum(!is.na(x)))
   sd.traj <- apply(fun.mat, 1, stats::sd, na.rm=T)
-  out <- list(support = beta.stop.grid, yfun = final.traj, se.yfun = sd.traj,
+  out <- list(support = grid, yfun = final.traj, se.yfun = sd.traj,
     npeel = nsup, x = x, y = y, alpha = peeli$alpha, 
     peeling.side = peeli$peeling.side, numeric.vars = peeli$numeric.vars,
     obj.fun = peeli$obj.fun)

@@ -164,7 +164,7 @@ predict.prim <- function(object, newx, newy, npeel = NULL, support = NULL,
   inbox <- sapply(boxes$limits, in.box, x = newx, simplify = "matrix")
   support <- apply(inbox, 2, mean)
   yfun <- apply(inbox, 2, function(bool){
-    do.call(object$obj.fun, list(x = newy[bool]))
+    do.call(object$obj.fun, list(y = newy, x = x, inbox = bool))
   })
   out <- list(inbox = inbox, support = support, yfun = yfun)  
   return(out)

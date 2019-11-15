@@ -18,7 +18,8 @@
 #'    for the chosen box in \code{object}.
 #' @param alpha The proportion of observations to add at each pasting iteration.
 #'    Usually equal to the peeling fraction used in \code{\link{peeling}}.
-#' @param obj.fun The objective function to maximize by pasting.
+#' @param obj.fun The objective function to maximize by pasting. See
+#'    \code{\link{peeling}}.
 #' @param peeling.side Constraints on the pasting side. 
 #'    -1 indicates pasting only on the 'left' of the box
 #'    (i.e. moving the lower limit only), 1 indicate pasting only on the
@@ -145,7 +146,7 @@ paste.one <- function(y, x, small.box, alpha = 0.05, obj.fun = mean,
     insmall <- finalobs <- in.box(x, small.box)
     nsmall <- sum(insmall)
     sup.small <- nsmall/n
-    small.fun <- do.call(obj.fun, list(x = y[insmall]))
+    small.fun <- do.call(obj.fun, list(y = y, x = x, inbox = insmall))
     yfun <- -Inf
     limits <- small.box
     for (j in 1:p){
@@ -179,7 +180,7 @@ paste.one <- function(y, x, small.box, alpha = 0.05, obj.fun = mean,
         }
         if (length(newobs) == 0) next
         for (k in 1:length(newobs)){
-          jyfun <- do.call(obj.fun, list(x = y[newobs[[k]]]))
+          jyfun <- do.call(obj.fun, list(y = y, x = x, inbox = newobs[[k]]))
           if (jyfun > yfun){
             yfun <- jyfun
             finalobs <- newobs[[k]]

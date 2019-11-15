@@ -185,7 +185,7 @@ plot_trajectory <- function(object, xtype = c("support", "nobs"),
   switch(ytype, 
     yfun = {
       y <- object$yfun
-      dots.def$ylab <- object$obj.fun
+      dots.def$ylab <- "Objective function"
     },
     diff = {
       y <- jump.prim(object, rel.support = F)$trajectory.difference

@@ -20,7 +20,7 @@ between 0 and 1 giving the proportion of remaining data below
 which the algorithm stops.}
 
 \item{obj.fun}{The function of \code{y} to be maximized. Can be a user 
-defined function.}
+defined function (see details).}
 
 \item{peeling.side}{A numeric vector for side constraints on the peeling of 
 each input variable. -1 indicates peeling only the 'left' of the box
@@ -61,9 +61,17 @@ The function \code{peeling} carries out the top-down peeling
    the support of the box (i.e. the proportion of remaining observations)
    is below the value \code{beta.stop}.
 
-   Any function can be used in \code{obj.fun} provided that it takes a
-   single argument \code{x}. It includes user defined functions (see
-   examples below).
+   Many function can be used in \code{obj.fun} including user defined 
+   functions. User defined function should take two arguments: \code{y}
+   and \code{x} representing corresponding variables 
+   and \code{inbox} which is a boolean
+   vector indicating the observations inside the current box.
+   Note that a classical function can also be passed to \code{obj.fun}
+   such as \code{mean}, \code{var} or \code{median}. In this case
+   the function is created internally to fit the above structure. 
+   For more functions more complicated than the basic ones,
+   it is recommended that the user set its own function as stated
+   above.  
    
    The function also allows directed peeling, i.e. to contraint the peeling
    occuring on a single side of some input variables. Thus when 
@@ -113,6 +121,23 @@ The function \code{peeling} carries out the top-down peeling
    chosen <- jump.prim(peel_res)
    plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
      support = chosen$final.box$support, box.args = list(lwd = 2))
+
+   # User-defined function maximizing the slope of a linear regression
+   set.seed(5555)
+   x <- runif(500)
+   ym <- 0.5 * x + 5 * (x - 0.7) * (x >= 0.7)
+   y <- ym + rnorm(500, sd = 0.1)    
+   peel_res <- peeling(y, x, beta.stop = 0.1, 
+     obj.fun = function(y, x, inbox){
+       dat <- data.frame(y, x)
+       coef(lm(y ~ x, data = dat[inbox,]))[2]
+   })   
+   par(mfrow = c(1,2))
+   plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+     support = 0.3, abline.pars = list(lwd = 2, col = "indianred"))
+   plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+     support = 0.3, box.args = list(lwd = 2))
+   lines(sort(x), ym[order(x)], col = "red", lwd = 2)
    
 }
 \references{

@@ -251,10 +251,42 @@ x <- matrix(runif(2000), ncol = 2, dimnames = list(NULL, c("x1", "x2")))
 y <- - 10 * (x[,1] <= .2 & x[,2] <= .2) + 10 * (x[,1] >= .8 & x[,2] >= .8) +
   rnorm(1000)
 
-peel_res <- peeling(y, x, obj.fun = function(x) -mean(x))
+peel_res <- peeling(y, x, obj.fun = function(y) -mean(y))
 chosen <- jump.prim(peel_res)
 
 plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
   support = chosen$final.box$support, box.args = list(lwd = 2))
 ```
 
+Finally, more complex objective functions can also be passed to `obj.fun`.
+In more complex cases, the function should take two arguments: `y`
+representing the response vector, `x` which is the explanatory variable matrix 
+and `inbox` which is a boolean
+vector indicating the observations inside the current box. 
+
+In the example
+below, we use a function to maximize the estimated coefficient of a 
+linear regression with a break. The peeling trajectory reaches a 
+plateau for supports lower than 0.3.
+
+```{r, fig.dim = c(10, 5), out.width = "100%"}
+set.seed(5555)
+x <- runif(500)
+ym <- 0.5 * x + 5 * (x - 0.7) * (x >= 0.7)
+y <- ym + rnorm(500, sd = 0.1)
+
+# Apply to find where the slope is the steepest
+peel_res <- peeling(y, x, beta.stop = 0.1, 
+  obj.fun = function(y, x, inbox){
+    dat <- data.frame(y, x)
+    coef(lm(y ~ x, data = dat[inbox,]))[2]
+})
+
+par(mfrow = c(1,2))
+plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+  support = 0.3, abline.pars = list(lwd = 2, col = "indianred"))
+plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+  support = 0.3, box.args = list(lwd = 2))
+lines(sort(x), ym[order(x)], col = "red", lwd = 2)
+
+```

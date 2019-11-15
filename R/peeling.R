@@ -16,7 +16,7 @@
 #'    between 0 and 1 giving the proportion of remaining data below
 #'    which the algorithm stops.
 #' @param obj.fun The function of \code{y} to be maximized. Can be a user 
-#'    defined function.
+#'    defined function (see details).
 #' @param peeling.side A numeric vector for side constraints on the peeling of 
 #'    each input variable. -1 indicates peeling only the 'left' of the box
 #'    (i.e. increasing the lower limit only), 1 indicate peeling only the
@@ -30,9 +30,17 @@
 #'    the support of the box (i.e. the proportion of remaining observations)
 #'    is below the value \code{beta.stop}.
 #'
-#'    Any function can be used in \code{obj.fun} provided that it takes a
-#'    single argument \code{x}. It includes user defined functions (see
-#'    examples below).
+#'    Many function can be used in \code{obj.fun} including user defined 
+#'    functions. User defined function should take two arguments: \code{y}
+#'    and \code{x} representing corresponding variables 
+#'    and \code{inbox} which is a boolean
+#'    vector indicating the observations inside the current box.
+#'    Note that a classical function can also be passed to \code{obj.fun}
+#'    such as \code{mean}, \code{var} or \code{median}. In this case
+#'    the function is created internally to fit the above structure. 
+#'    For more functions more complicated than the basic ones,
+#'    it is recommended that the user set its own function as stated
+#'    above.  
 #'    
 #'    The function also allows directed peeling, i.e. to contraint the peeling
 #'    occuring on a single side of some input variables. Thus when 
@@ -116,6 +124,23 @@
 #'    chosen <- jump.prim(peel_res)
 #'    plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
 #'      support = chosen$final.box$support, box.args = list(lwd = 2))
+#'
+#'    # User-defined function maximizing the slope of a linear regression
+#'    set.seed(5555)
+#'    x <- runif(500)
+#'    ym <- 0.5 * x + 5 * (x - 0.7) * (x >= 0.7)
+#'    y <- ym + rnorm(500, sd = 0.1)    
+#'    peel_res <- peeling(y, x, beta.stop = 0.1, 
+#'      obj.fun = function(y, x, inbox){
+#'        dat <- data.frame(y, x)
+#'        coef(lm(y ~ x, data = dat[inbox,]))[2]
+#'    })   
+#'    par(mfrow = c(1,2))
+#'    plot_trajectory(peel_res, type = "b", pch = 16, col = "cornflowerblue", 
+#'      support = 0.3, abline.pars = list(lwd = 2, col = "indianred"))
+#'    plot_box(peel_res, pch = 16, ypalette = hcl.colors(10), 
+#'      support = 0.3, box.args = list(lwd = 2))
+#'    lines(sort(x), ym[order(x)], col = "red", lwd = 2)
 #'    
 #' @export
 peeling <- function(y, x, alpha = 0.05, beta.stop = 0.01, 
@@ -130,33 +155,35 @@ peeling <- function(y, x, alpha = 0.05, beta.stop = 0.01,
     nstep <- ceiling(log(beta.stop)/log(1-alpha))
     support <- yfun <- numeric(nstep + 1)
     limits <- vector("list", nstep+1)
-    support[1] <- 1
-    yfun[1] <- do.call(obj.fun, list(x = y))
+    support[1] <- 1    
+    obj.fun <- construct_objfun(obj.fun)
+    yfun[1] <- do.call(obj.fun, list(y = y, x = x, inbox = rep(T, n)))
     limits[[1]] <- vector("list", p)
     limits[[1]][numeric.vars] <- lapply(x[,numeric.vars, drop = F], range)
     limits[[1]][!numeric.vars] <- lapply(x[,!numeric.vars, drop = F], levels)
-    newx <- x
-    newy <- y
     count <- 1
     while (support[count] > beta.stop){
-      new.peel <- peel(y = newy, x = newx, alpha = alpha, obj.fun = obj.fun, 
+      new.peel <- peel(y = y, x = x, alpha = alpha, obj.fun = obj.fun, 
         peeling.side = peeling.side, limits = limits[[count]], 
         numeric.vars = numeric.vars)
-      newx <- new.peel$x
-      newy <- new.peel$y
       count <- count + 1
-      support[count] <- length(newy)/n
+      support[count] <- new.peel$support
       yfun[count] <- new.peel$yfun
       limits[[count]] <- new.peel$limits
-      if (count == (nstep + 1) || length(unique(newy)) == 1) break
+      if (count == (nstep + 1) || 
+        length(unique(y[in.box(x, limits[[count]])])) == 1){ 
+          break
+      }
     }
-    irem <- count:nstep+1
-    support <- support[-irem]
-    yfun <- yfun[-irem]
-    limits <- limits[-irem]
+    if (count < nstep){
+      irem <- count:nstep + 1
+      support <- support[-irem]
+      yfun <- yfun[-irem]
+      limits <- limits[-irem]
+    }  
     out <- list(npeel = count - 1, support = support, yfun = yfun, 
       limits = limits, x = x, y = y, numeric.vars = numeric.vars, alpha = alpha, 
-      peeling.side = peeling.side, obj.fun = deparse(substitute(obj.fun)),
+      peeling.side = peeling.side, obj.fun = obj.fun,
       npaste = 0)
     class(out) <- "prim"
     return(out)
@@ -170,7 +197,9 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
     yfun <- -Inf
     nnumeric <- sum(numeric.vars)
     numinds <- which(numeric.vars)
-    numeric_sublims <- c(alpha, 1 - alpha)
+    inbox <- in.box(x, limits)
+    yin <- y[inbox]
+    xin <- x[inbox,, drop = FALSE]
     for (j in 1:p){
       if (numeric.vars[j]){
         boxes <- list(c(alpha, 1), c(0, 1 - alpha))
@@ -184,27 +213,27 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
       }            
       for (k in 1:length(boxes)){
         if (numeric.vars[j]){
-          newlims <- stats::quantile(x[,j], boxes[[k]])
+          newlims <- stats::quantile(xin[,j], boxes[[k]])
           movinglim <- which(boxes[[k]] %in% c(alpha,1 - alpha))
           if (newlims[movinglim] == limits[[j]][movinglim]){ 
           # To manage the case in which there are many ties 
             newlims[movinglim] <- sort(unique(x[,j]), 
               decreasing = as.logical(movinglim - 1))[2]
           }
-          inbox <- x[,j] >= newlims[1] & x[,j] <= newlims[2]
+          inboxk <- x[,j] >= newlims[1] & x[,j] <= newlims[2]
         } else {
-          inbox <- x[,j] != boxes[k]
+          inboxk <- x[,j] != boxes[k]
           newlims <- limits[[j]][-k]
         }
-        jyfun <- do.call(obj.fun, list(x = y[inbox]))
+        jyfun <- do.call(obj.fun, list(y = y, x = x, inbox = inbox & inboxk))
         if (jyfun > yfun){
-           finbox <- inbox
+           finbox <- inbox & inboxk
            yfun <- jyfun
         }
       }      
     }
     # Final readjustment of limits
-    final.x <- x[finbox,,drop=F] 
+    final.x <- x[finbox,,drop = FALSE] 
     new.limits <- Map(function(xj, numj){
       if (numj){
         out <- range(xj)
@@ -212,7 +241,6 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
         out <- unique(xj)
       }
     }, final.x, numeric.vars)
-    return(list(limits = new.limits, yfun = yfun,
-       y = y[finbox], x = final.x))
+    return(list(limits = new.limits, yfun = yfun, support = mean(finbox)))
 }
 

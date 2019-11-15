@@ -3,19 +3,20 @@ test_that("pasting numerical variables works", {
   y <- 5*x[[1]] + rnorm(100)
   small.box <- list(c(.1, .2))
   nbox <- sum(in.box(x, small.box))
-  past_res <- paste.one(y, x, alpha = .2, small.box = small.box)
+  past_res <- paste.one(y, x, alpha = .2, small.box = small.box,
+    obj.fun = construct_objfun(mean))
   # Check that 2 obs have been added
   expect_equal(length(past_res$y), ceiling(nbox * 1.2)) 
   
   # Check that it had been added on the right
   past_res <- paste.one(y, x, alpha = .2, small.box = small.box, 
-    peeling.side = 1)
+    peeling.side = 1, obj.fun = construct_objfun(mean))
   expect_equal(past_res$limits[[1]][1], min(x[x >= .1]))
   expect_gt(past_res$limits[[1]][2], .2)
   
   # Check that it had been added on the left
   past_res <- paste.one(y, x, alpha = .2, small.box = small.box, 
-    peeling.side = -1)
+    peeling.side = -1, obj.fun = construct_objfun(mean))
   expect_equal(past_res$limits[[1]][2], max(x[x <= .2]))
   expect_lt(past_res$limits[[1]][1], .1)
   
@@ -24,7 +25,8 @@ test_that("pasting numerical variables works", {
   y <- 5*x[[1]] + rnorm(1000)
   small.box <- list(c(.1, .2), c(.1, .2))
   nbox <- sum(in.box(x, small.box))
-  past_res <- paste.one(y, x, alpha = .2, small.box = small.box)
+  past_res <- paste.one(y, x, alpha = .2, small.box = small.box,
+    obj.fun = construct_objfun(mean))
   # Check that 2 obs have been added
   expect_equal(length(past_res$y), ceiling(nbox * 1.2)) 
 })
@@ -35,7 +37,8 @@ test_that("pasting categorical variables works", {
   lettermeans <- aggregate(y, by = x, mean)
   worstletter <- as.character(lettermeans[which.min(lettermeans[,2]),1])
   bestletter <- as.character(lettermeans[which.max(lettermeans[,2]),1])
-  past_res <- paste.one(y, x, small.box = list(worstletter), numeric.vars = F)
+  past_res <- paste.one(y, x, small.box = list(worstletter), numeric.vars = F,
+    obj.fun = construct_objfun(mean))
   # Check that limits now contains the new best letter
   expect_setequal(past_res$limits[[1]], c(worstletter, bestletter))
   expect_gt(length(past_res$y), sum(x == worstletter)) 

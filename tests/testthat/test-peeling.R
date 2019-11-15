@@ -3,17 +3,19 @@ test_that("peeling numeric variables works", {
   y <- 5*x + rnorm(100)
   
   # General peeling
-  peel_res <- peel(y, as.matrix(x), limits = list(c(0,1)))
-  expect_equal(length(peel_res$y), 95)
-  expect_equal(nrow(peel_res$x), 95)
+  peel_res <- peel(y, as.matrix(x), limits = list(c(0,1)),
+    obj.fun = construct_objfun(mean))
+  expect_equal(peel_res$support, 0.95)
   
   # Left peeling
-  peel_res <- peel(y, as.data.frame(x), limits = list(c(0,1)), peeling.side = -1)
+  peel_res <- peel(y, as.data.frame(x), limits = list(c(0,1)), peeling.side = -1,
+    obj.fun = construct_objfun(mean))
   expect_equal(peel_res$limits[[1]][1], sort(x)[6])
   expect_equal(peel_res$limits[[1]][2], max(x))
   
   # Right peeling
-  peel_res <- peel(y, as.data.frame(x), limits = list(c(0,1)), peeling.side = 1)
+  peel_res <- peel(y, as.data.frame(x), limits = list(c(0,1)), peeling.side = 1,
+    obj.fun = construct_objfun(mean))
   expect_equal(peel_res$limits[[1]][2], sort(x)[95])
   expect_equal(peel_res$limits[[1]][1], min(x))
   
@@ -22,7 +24,8 @@ test_that("peeling numeric variables works", {
   xlims <- lapply(x, range)
   y <- 1000*x[,1] + rnorm(100)
   
-  peel_res <- peel(y, x, limits = xlims)
+  peel_res <- peel(y, x, limits = xlims,
+    obj.fun = construct_objfun(mean))
   xlims[[1]][1] <- sort(x[,1])[6]
   expect_equal(peel_res$limits, xlims)
 })

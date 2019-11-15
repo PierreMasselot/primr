@@ -24,7 +24,8 @@ for the chosen box in \code{object}.}
 \item{alpha}{The proportion of observations to add at each pasting iteration.
 Usually equal to the peeling fraction used in \code{\link{peeling}}.}
 
-\item{obj.fun}{The objective function to maximize by pasting.}
+\item{obj.fun}{The objective function to maximize by pasting. See
+\code{\link{peeling}}.}
 
 \item{peeling.side}{Constraints on the pasting side. 
 -1 indicates pasting only on the 'left' of the box
