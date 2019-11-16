@@ -1,6 +1,6 @@
 Package: primr
 Title: Patient rule-induction method
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     person(given = "Pierre",
            family = "Masselot",
