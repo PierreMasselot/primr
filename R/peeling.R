@@ -217,7 +217,7 @@ peel <- function(y, x, alpha = 0.05, obj.fun = mean, limits,
           movinglim <- which(boxes[[k]] %in% c(alpha,1 - alpha))
           if (newlims[movinglim] == limits[[j]][movinglim]){ 
           # To manage the case in which there are many ties 
-            newlims[movinglim] <- sort(unique(x[,j]), 
+            newlims[movinglim] <- sort(unique(xin[,j]), 
               decreasing = as.logical(movinglim - 1))[2]
           }
           inboxk <- x[,j] >= newlims[1] & x[,j] <= newlims[2]
