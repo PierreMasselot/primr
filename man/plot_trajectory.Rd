@@ -4,10 +4,19 @@
 \alias{plot_trajectory}
 \title{Plot a peeling trajectory}
 \usage{
-plot_trajectory(object, xtype = c("support", "nobs"), ytype = c("yfun",
-  "diff", "rel.diff"), npeel = NULL, support = NULL, yfun = NULL,
-  npaste = NULL, abline.pars = list(), se = TRUE, se.pars = list(),
-  ...)
+plot_trajectory(
+  object,
+  xtype = c("support", "nobs"),
+  ytype = c("yfun", "diff", "rel.diff"),
+  npeel = NULL,
+  support = NULL,
+  yfun = NULL,
+  npaste = NULL,
+  abline.pars = list(),
+  se = TRUE,
+  se.pars = list(),
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{prim} object.}

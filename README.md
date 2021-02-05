@@ -14,7 +14,7 @@ The `primr` package provides function for performing the patient rule-induction 
 ```
 2. The package can then be loaded as usual: `library(primr)`.
 3. You can see the vignette for simple examples: `vignette("toy_example")`.
-4. You can see the list of functions in the file https://github.com/PierreMasselot/primr/blob/master/primr_0.0.0.9000.pdf or access help from R with `?peeling`.
+4. You can see the list of functions below and access help from R with `?peeling`.
 
 ## Functions
 
@@ -36,4 +36,4 @@ In addition, `prim` objects can be passed to several functions for analysis:
 
 Friedman, J.H., Fisher, N.I., 1999. Bump hunting in high-dimensional data. *Statistics and Computing* 9, 123-143. https://doi.org/10.1023/A:1008894516817
 
-Masselot P., Chebana F., Campagna C., Lavigne E., Ouarda T.B.M.J., Gosselin P. On threshold identification for weather-health warning systems. *Submitted*.
+Masselot P., Chebana F., Campagna C., Lavigne E., Ouarda T.B.M.J., Gosselin P. Machine learning approaches to identify thresholds in a heat-health warning system context. *Submitted*.

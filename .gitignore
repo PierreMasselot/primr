@@ -35,3 +35,9 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 inst/doc
+
+# Other files
+Other.R
+MASTER.R
+TODO.*
+inst/doc

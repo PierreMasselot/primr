@@ -1,6 +1,6 @@
 Package: primr
 Title: Patient rule-induction method
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: 
     person(given = "Pierre",
            family = "Masselot",
@@ -15,9 +15,10 @@ Suggests:
     testthat (>= 2.1.0),
     knitr,
     rmarkdown,
+	markdown,
     fields
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Imports: 
     graphics,
     stats

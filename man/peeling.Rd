@@ -4,8 +4,7 @@
 \alias{peeling}
 \title{Top-down peeling}
 \usage{
-peeling(y, x, alpha = 0.05, beta.stop = 0.01, obj.fun = mean,
-  peeling.side = 0)
+peeling(y, x, alpha = 0.05, beta.stop = 0.01, obj.fun = mean, peeling.side = 0)
 }
 \arguments{
 \item{y}{Numeric vector of response values.}

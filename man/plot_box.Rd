@@ -4,9 +4,17 @@
 \alias{plot_box}
 \title{Plot a box}
 \usage{
-plot_box(object, select = 1:2, npeel = NULL, support = NULL,
-  yfun = NULL, npaste = NULL, ypalette = NULL, box.args = list(),
-  ...)
+plot_box(
+  object,
+  select = 1:2,
+  npeel = NULL,
+  support = NULL,
+  yfun = NULL,
+  npaste = NULL,
+  ypalette = NULL,
+  box.args = list(),
+  ...
+)
 }
 \arguments{
 \item{object}{A 'prim' object.}

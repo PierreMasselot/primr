@@ -32,6 +32,7 @@ test_that("pasting numerical variables works", {
 })
 
 test_that("pasting categorical variables works", {
+  set.seed(1)
   x <- data.frame(V1 = sample(letters[1:5], 100, replace = T))
   y <- rnorm(100)
   lettermeans <- aggregate(y, by = x, mean)

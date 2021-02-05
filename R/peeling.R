@@ -151,6 +151,7 @@ peeling <- function(y, x, alpha = 0.05, beta.stop = 0.01,
     n <- nrow(x)
     numeric.vars <- sapply(x, is.numeric)
     nnumeric <- sum(numeric.vars)
+    x[!numeric.vars] <- lapply(x[!numeric.vars], as.factor)
     peeling.side <- rep_len(peeling.side, nnumeric)
     nstep <- ceiling(log(beta.stop)/log(1-alpha))
     support <- yfun <- numeric(nstep + 1)
@@ -160,7 +161,7 @@ peeling <- function(y, x, alpha = 0.05, beta.stop = 0.01,
     yfun[1] <- do.call(obj.fun, list(y = y, x = x, inbox = rep(T, n)))
     limits[[1]] <- vector("list", p)
     limits[[1]][numeric.vars] <- lapply(x[,numeric.vars, drop = F], range)
-    limits[[1]][!numeric.vars] <- lapply(x[,!numeric.vars, drop = F], levels)
+    limits[[1]][!numeric.vars] <- lapply(x[,!numeric.vars, drop = F], unique)
     count <- 1
     while (support[count] > beta.stop){
       new.peel <- peel(y = y, x = x, alpha = alpha, obj.fun = obj.fun, 

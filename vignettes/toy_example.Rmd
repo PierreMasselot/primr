@@ -17,12 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, include = FALSE}
-#library(primr)
-path <- paste0("C:/Users/masselpl/Documents/Recherche/2017-2019 - Post-doc/",
-  "Programmes/R/primr/R")
-invisible(lapply(list.files(path), function(fil){
-  source(sprintf("%s/%s", path, fil))}))
-
+library(primr)
 ```
 
 # A basic toy example

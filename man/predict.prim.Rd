@@ -4,8 +4,16 @@
 \alias{predict.prim}
 \title{Predict method for a \code{prim} object}
 \usage{
-\method{predict}{prim}(object, newx, newy, npeel = NULL,
-  support = NULL, yfun = NULL, npaste = NULL, ...)
+\method{predict}{prim}(
+  object,
+  newx,
+  newy,
+  npeel = NULL,
+  support = NULL,
+  yfun = NULL,
+  npaste = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{prim} object.}

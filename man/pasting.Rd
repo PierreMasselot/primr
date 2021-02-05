@@ -4,9 +4,15 @@
 \alias{pasting}
 \title{Bottom up pasting}
 \usage{
-pasting(object, npeel = NULL, support = NULL, yfun = NULL,
-  alpha = object$alpha, obj.fun = object$obj.fun,
-  peeling.side = object$peeling.side)
+pasting(
+  object,
+  npeel = NULL,
+  support = NULL,
+  yfun = NULL,
+  alpha = object$alpha,
+  obj.fun = object$obj.fun,
+  peeling.side = object$peeling.side
+)
 }
 \arguments{
 \item{object}{\code{prim} object resulting from a call to 

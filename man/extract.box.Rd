@@ -4,8 +4,7 @@
 \alias{extract.box}
 \title{Extract boxes}
 \usage{
-extract.box(object, npeel = NULL, support = NULL, yfun = NULL,
-  npaste = NULL)
+extract.box(object, npeel = NULL, support = NULL, yfun = NULL, npaste = NULL)
 }
 \arguments{
 \item{object}{\code{prim} object.}
